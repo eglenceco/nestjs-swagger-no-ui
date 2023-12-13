@@ -20,7 +20,7 @@
 
 ## Description
 
-[OpenAPI (Swagger)](https://www.openapis.org/) module for [Nest](https://github.com/nestjs/nest).
+[OpenAPI (Swagger)](https://www.openapis.org/) module for [Nest](https://github.com/nestjs/nest). This package is modified to remove the swagger-ui-dist dependency.
 
 ## Installation
 
