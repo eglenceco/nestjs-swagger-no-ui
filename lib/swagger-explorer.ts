@@ -13,13 +13,14 @@ import {
 } from '@nestjs/common/interfaces';
 import {
   addLeadingSlash,
-  isString,
   isUndefined
 } from '@nestjs/common/utils/shared.utils';
 import { ApplicationConfig, MetadataScanner } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
+import { LegacyRouteConverter } from '@nestjs/core/router/legacy-route-converter';
 import { RoutePathFactory } from '@nestjs/core/router/route-path-factory';
 import {
+  cloneDeep,
   flatten,
   get,
   head,
@@ -28,11 +29,11 @@ import {
   mapValues,
   omit,
   omitBy,
-  pick,
-  cloneDeep
+  pick
 } from 'lodash';
-import * as pathToRegexp from 'path-to-regexp';
+import { parse, Wildcard } from 'path-to-regexp';
 import { DECORATORS } from './constants';
+import { exploreApiCallbacksMetadata } from './explorers/api-callbacks.explorer';
 import { exploreApiExcludeControllerMetadata } from './explorers/api-exclude-controller.explorer';
 import { exploreApiExcludeEndpointMetadata } from './explorers/api-exclude-endpoint.explorer';
 import {
@@ -72,24 +73,58 @@ export class SwaggerExplorer {
   private readonly schemas: Record<string, SchemaObject> = {};
   private operationIdFactory: OperationIdFactory = (
     controllerKey: string,
-    methodKey: string
-  ) => (controllerKey ? `${controllerKey}_${methodKey}` : methodKey);
+    methodKey: string,
+    version?: string
+  ) =>
+    version
+      ? controllerKey
+        ? `${controllerKey}_${methodKey}_${version}`
+        : `${methodKey}_${version}`
+      : controllerKey
+        ? `${controllerKey}_${methodKey}`
+        : methodKey;
   private routePathFactory?: RoutePathFactory;
+  private linkNameFactory = (
+    controllerKey: string,
+    methodKey: string,
+    fieldKey: string
+  ) =>
+    controllerKey
+      ? `${controllerKey}_${methodKey}_from_${fieldKey}`
+      : `${methodKey}_from_${fieldKey}`;
 
-  constructor(private readonly schemaObjectFactory: SchemaObjectFactory) {}
+  constructor(
+    private readonly schemaObjectFactory: SchemaObjectFactory,
+    private readonly options: {
+      httpAdapterType?: string;
+    } = {}
+  ) {}
 
   public exploreController(
     wrapper: InstanceWrapper<Controller>,
     applicationConfig: ApplicationConfig,
-    modulePath?: string | undefined,
-    globalPrefix?: string | undefined,
-    operationIdFactory?: OperationIdFactory
+    options: {
+      modulePath?: string;
+      globalPrefix?: string;
+      operationIdFactory?: OperationIdFactory;
+      linkNameFactory?: (
+        controllerKey: string,
+        methodKey: string,
+        fieldKey: string
+      ) => string;
+      autoTagControllers?: boolean;
+    }
   ) {
+    const { operationIdFactory, linkNameFactory } = options;
+
     this.routePathFactory = new RoutePathFactory(applicationConfig);
     if (operationIdFactory) {
       this.operationIdFactory = operationIdFactory;
     }
 
+    if (linkNameFactory) {
+      this.linkNameFactory = linkNameFactory;
+    }
     const { instance, metatype } = wrapper;
     const prototype = Object.getPrototypeOf(instance);
     const documentResolvers: DenormalizedDocResolvers = {
@@ -100,7 +135,13 @@ export class SwaggerExplorer {
       ],
       security: [exploreApiSecurityMetadata],
       tags: [exploreApiTagsMetadata],
-      responses: [exploreApiResponseMetadata.bind(null, this.schemas)]
+      callbacks: [exploreApiCallbacksMetadata],
+      responses: [
+        exploreApiResponseMetadata.bind(null, this.schemas, {
+          operationId: this.operationIdFactory,
+          linkName: this.linkNameFactory
+        })
+      ]
     };
     return this.generateDenormalizedDocument(
       metatype as Type<unknown>,
@@ -108,8 +149,7 @@ export class SwaggerExplorer {
       instance,
       documentResolvers,
       applicationConfig,
-      modulePath,
-      globalPrefix
+      options
     );
   }
 
@@ -123,8 +163,11 @@ export class SwaggerExplorer {
     instance: object,
     documentResolvers: DenormalizedDocResolvers,
     applicationConfig: ApplicationConfig,
-    modulePath?: string,
-    globalPrefix?: string
+    options: {
+      modulePath?: string;
+      globalPrefix?: string;
+      autoTagControllers?: boolean;
+    }
   ): DenormalizedDoc[] {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
@@ -133,7 +176,9 @@ export class SwaggerExplorer {
     if (excludeController) {
       return [];
     }
-    const globalMetadata = this.exploreGlobalMetadata(metatype);
+    const globalMetadata = this.exploreGlobalMetadata(metatype, {
+      autoTagControllers: options.autoTagControllers
+    });
     const ctrlExtraModels = exploreGlobalApiExtraModelsMetadata(metatype);
     this.registerExtraModels(ctrlExtraModels);
 
@@ -165,9 +210,10 @@ export class SwaggerExplorer {
             prototype,
             targetCallback,
             metatype,
-            globalPrefix,
-            modulePath,
-            applicationConfig
+            options.globalPrefix,
+            options.modulePath,
+            applicationConfig,
+            options.autoTagControllers
           );
           if (!exploredMetadata) {
             return metadata;
@@ -229,10 +275,13 @@ export class SwaggerExplorer {
   }
 
   private exploreGlobalMetadata(
-    metatype: Type<unknown>
+    metatype: Type<unknown>,
+    options: {
+      autoTagControllers?: boolean;
+    }
   ): Partial<OpenAPIObject> {
     const globalExplorers = [
-      exploreGlobalApiTagsMetadata,
+      exploreGlobalApiTagsMetadata(options.autoTagControllers),
       exploreGlobalApiSecurityMetadata,
       exploreGlobalApiResponseMetadata.bind(null, this.schemas),
       exploreGlobalApiHeaderMetadata
@@ -299,33 +348,48 @@ export class SwaggerExplorer {
       },
       requestMethod
     );
+
     return flatten(
-      allRoutePaths.map((routePath) => {
+      allRoutePaths.map((routePath, index) => {
         const fullPath = this.validateRoutePath(routePath);
         const apiExtension = Reflect.getMetadata(
           DECORATORS.API_EXTENSION,
           method
         );
         if (requestMethod === RequestMethod.ALL) {
-          // apply workaround for invalid "ALL" Method
-          const validMethods = Object.values(RequestMethod).filter(
-            (meth) => meth !== 'ALL' && typeof meth === 'string'
-          ) as string[];
-          return validMethods.map((meth) => ({
-            method: meth.toLowerCase(),
+          // Workaround for the invalid "ALL" Method
+          const validMethods = [
+            'get',
+            'post',
+            'put',
+            'delete',
+            'patch',
+            'options',
+            'head',
+            'search'
+          ];
+
+          return validMethods.map((requestMethod) => ({
+            method: requestMethod,
             path: fullPath === '' ? '/' : fullPath,
             operationId: `${this.getOperationId(
               instance,
-              method
-            )}_${meth.toLowerCase()}`,
+              method.name
+            )}_${requestMethod.toLowerCase()}`,
             ...apiExtension
           }));
         }
-        const pathVersion = versions.find((v) => fullPath.includes(`/${v}/`));
+
+        const pathVersion = versions.find(
+          (v) => fullPath.includes(`/${v}/`) || fullPath.endsWith(`/${v}`)
+        );
+        const isAlias =
+          allRoutePaths.length > 1 && allRoutePaths.length !== versions.length;
+        const methodKey = isAlias ? `${method.name}[${index}]` : method.name;
         return {
           method: RequestMethod[requestMethod].toLowerCase(),
           path: fullPath === '' ? '/' : fullPath,
-          operationId: this.getOperationId(instance, method, pathVersion),
+          operationId: this.getOperationId(instance, methodKey, pathVersion),
           ...apiExtension
         };
       })
@@ -334,12 +398,12 @@ export class SwaggerExplorer {
 
   private getOperationId(
     instance: object,
-    method: Function,
+    methodKey: string,
     version?: string
   ): string {
     return this.operationIdFactory(
       instance.constructor?.name || '',
-      method.name,
+      methodKey,
       version
     );
   }
@@ -355,7 +419,7 @@ export class SwaggerExplorer {
     }
 
     if (Array.isArray(versionValue)) {
-      versions = versionValue.filter((v) => v !== VERSION_NEUTRAL) as string[];
+      versions = versionValue.filter((v) => v !== VERSION_NEUTRAL);
     } else if (versionValue !== VERSION_NEUTRAL) {
       versions = [versionValue];
     }
@@ -378,8 +442,43 @@ export class SwaggerExplorer {
       path = head(path);
     }
     let pathWithParams = '';
-    for (const item of pathToRegexp.parse(path)) {
-      pathWithParams += isString(item) ? item : `${item.prefix}{${item.name}}`;
+
+    try {
+      let normalizedPath = LegacyRouteConverter.tryConvert(path, {
+        // Skip logs for Fastify as it has different rules for wildcard routes
+        logs: this.options.httpAdapterType !== 'fastify'
+      });
+      // Optional segment groups are not supported by Fastify
+      normalizedPath = normalizedPath.replace(/::/g, '\\:');
+      normalizedPath = normalizedPath.replace(/\[:\]/g, '\\:');
+      // Strip inline regexps (Fastify)
+      normalizedPath = normalizedPath.replace(/\(\^([^)]+)\)/g, '');
+
+      const { tokens } = parse(normalizedPath);
+      for (const item of tokens) {
+        if (item.type === 'text') {
+          pathWithParams += item.value;
+        } else if (item.type === 'param') {
+          pathWithParams += `{${item.name}}`;
+        } else if (item.type === 'wildcard') {
+          pathWithParams += `{${item.name}}`;
+        } else if (item.type === 'group') {
+          // Flatten the optional parameter groups to a single parameter
+          pathWithParams += item.tokens.reduce(
+            (acc, item) =>
+              acc +
+              (item.type === 'text'
+                ? item.value
+                : `{${(item as Wildcard).name}}`),
+            ''
+          );
+        }
+      }
+    } catch (err) {
+      if (err instanceof TypeError) {
+        LegacyRouteConverter.printError(path);
+      }
+      throw err;
     }
     return pathWithParams === '/' ? '' : addLeadingSlash(pathWithParams);
   }

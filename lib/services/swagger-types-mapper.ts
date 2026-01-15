@@ -1,4 +1,4 @@
-import { isFunction, isUndefined, omit, omitBy } from 'lodash';
+import { isFunction, isString, isUndefined, omit, omitBy, pick } from 'lodash';
 import { ApiPropertyOptions } from '../decorators';
 import {
   BaseParameterObject,
@@ -7,14 +7,22 @@ import {
 } from '../interfaces/open-api-spec.interface';
 import { ParamWithTypeMetadata } from './parameter-metadata-accessor';
 
+type KeysToRemove =
+  | keyof ApiPropertyOptions
+  | '$ref'
+  | 'properties'
+  | 'enumName'
+  | 'enumSchema'
+  | 'selfRequired';
+
 export class SwaggerTypesMapper {
-  private readonly keysToRemove: Array<keyof ApiPropertyOptions | '$ref'> = [
-    'type',
+  private readonly keysToRemove: Array<KeysToRemove> = [
     'isArray',
     'enum',
     'enumName',
-    'items',
+    'enumSchema',
     '$ref',
+    'selfRequired',
     ...this.getSchemaOptionsKeys()
   ];
 
@@ -22,7 +30,17 @@ export class SwaggerTypesMapper {
     parameters: Array<ParamWithTypeMetadata | BaseParameterObject>
   ) {
     return parameters.map((param) => {
-      if (this.hasSchemaDefinition(param as BaseParameterObject)) {
+      if (
+        this.hasSchemaDefinition(param as BaseParameterObject) ||
+        this.hasRawContentDefinition(param)
+      ) {
+        if (Array.isArray(param.required) && 'schema' in param) {
+          (param.schema as SchemaObject).required = param.required;
+          delete param.required;
+        }
+        if ('selfRequired' in param) {
+          param.required = param.selfRequired;
+        }
         return this.omitParamKeys(param);
       }
       const { type } = param as ParamWithTypeMetadata;
@@ -73,10 +91,7 @@ export class SwaggerTypesMapper {
     return (type as string).charAt(0).toLowerCase() + (type as string).slice(1);
   }
 
-  mapEnumArrayType(
-    param: Record<string, any>,
-    keysToRemove: Array<keyof ApiPropertyOptions | '$ref'>
-  ) {
+  mapEnumArrayType(param: Record<string, any>, keysToRemove: KeysToRemove[]) {
     return {
       ...omit(param, keysToRemove),
       schema: {
@@ -89,8 +104,9 @@ export class SwaggerTypesMapper {
 
   mapArrayType(
     param: (ParamWithTypeMetadata & SchemaObject) | BaseParameterObject,
-    keysToRemove: Array<keyof ApiPropertyOptions | '$ref'>
+    keysToRemove: KeysToRemove[]
   ) {
+    const itemsModifierKeys = ['format', 'maximum', 'minimum', 'pattern'];
     const items =
       (param as SchemaObject).items ||
       omitBy(
@@ -101,14 +117,46 @@ export class SwaggerTypesMapper {
         },
         isUndefined
       );
+    const modifierProperties = pick(param, itemsModifierKeys);
     return {
       ...omit(param, keysToRemove),
       schema: {
-        ...this.getSchemaOptions(param),
+        ...omit(this.getSchemaOptions(param), [...itemsModifierKeys]),
         type: 'array',
-        items
+        items: isString((items as any).type)
+          ? { type: (items as any).type, ...modifierProperties }
+          : { ...(items as any).type, ...modifierProperties }
       }
     };
+  }
+
+  getSchemaOptionsKeys(): Array<keyof SchemaObject> {
+    return [
+      'properties',
+      'patternProperties',
+      'additionalProperties',
+      'minimum',
+      'maximum',
+      'maxProperties',
+      'minItems',
+      'minProperties',
+      'maxItems',
+      'minLength',
+      'maxLength',
+      'exclusiveMaximum',
+      'exclusiveMinimum',
+      'uniqueItems',
+      'title',
+      'format',
+      'pattern',
+      'nullable',
+      'default',
+      'example',
+      'oneOf',
+      'anyOf',
+      'type',
+      'items'
+    ];
   }
 
   private getSchemaOptions(param: Record<string, any>): Partial<SchemaObject> {
@@ -133,31 +181,11 @@ export class SwaggerTypesMapper {
     return !!param.schema;
   }
 
-  private omitParamKeys(param: ParamWithTypeMetadata | BaseParameterObject) {
-    return omit(param, this.keysToRemove);
+  private hasRawContentDefinition(param: BaseParameterObject) {
+    return 'content' in param;
   }
 
-  private getSchemaOptionsKeys(): Array<keyof SchemaObject> {
-    return [
-      'properties',
-      'patternProperties',
-      'additionalProperties',
-      'minimum',
-      'maximum',
-      'maxProperties',
-      'minItems',
-      'minProperties',
-      'maxItems',
-      'minLength',
-      'maxLength',
-      'exclusiveMaximum',
-      'exclusiveMinimum',
-      'uniqueItems',
-      'title',
-      'format',
-      'pattern',
-      'nullable',
-      'default'
-    ];
+  private omitParamKeys(param: ParamWithTypeMetadata | BaseParameterObject) {
+    return omit(param, this.keysToRemove);
   }
 }

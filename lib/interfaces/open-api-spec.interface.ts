@@ -232,6 +232,7 @@ export interface SchemaObject {
   minProperties?: number;
   required?: string[];
   enum?: any[];
+  'x-enumNames'?: string[];
 }
 
 export type SchemasObject = Record<string, SchemaObject>;
@@ -261,6 +262,13 @@ export interface SecuritySchemeObject {
   flows?: OAuthFlowsObject;
   openIdConnectUrl?: string;
   'x-tokenName'?: string;
+
+  /**
+   * SecuritySchemes Additional extension properties
+   * @issue https://github.com/nestjs/swagger/issues/3179
+   * @see https://swagger.io/docs/specification/v3_0/openapi-extensions/
+   */
+  [extension: `x-${string}`]: any;
 }
 
 export interface OAuthFlowsObject {
@@ -279,3 +287,5 @@ export interface OAuthFlowObject {
 
 export type ScopesObject = Record<string, any>;
 export type SecurityRequirementObject = Record<string, string[]>;
+
+export type ExtensionLocation = 'root' | 'info';

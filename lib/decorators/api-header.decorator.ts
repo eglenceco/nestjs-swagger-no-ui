@@ -16,6 +16,9 @@ const defaultHeaderOptions: Partial<ApiHeaderOptions> = {
   name: ''
 };
 
+/**
+ * @publicApi
+ */
 export function ApiHeader(
   options: ApiHeaderOptions
 ): MethodDecorator & ClassDecorator {
@@ -25,9 +28,10 @@ export function ApiHeader(
       in: 'header',
       description: options.description,
       required: options.required,
+      examples: options.examples,
       schema: {
-        ...(options.schema || {}),
-        type: 'string'
+        type: 'string',
+        ...(options.schema || {})
       }
     },
     negate(isUndefined)
@@ -36,6 +40,7 @@ export function ApiHeader(
   if (options.enum) {
     const enumValues = getEnumValues(options.enum);
     param.schema = {
+      ...param.schema,
       enum: enumValues,
       type: getEnumType(enumValues)
     };

@@ -1,123 +1,9 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/api/v1": {
-      "get": {
-        "operationId": "AppController_getHello",
-        "parameters": [
-          {
-            "name": "x-tenant-id",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/v2": {
-      "get": {
-        "operationId": "AppController_getHello",
-        "parameters": [
-          {
-            "name": "x-tenant-id",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/v1/alias1": {
-      "get": {
-        "operationId": "AppController_withAliases",
-        "parameters": [
-          {
-            "name": "x-tenant-id",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/v1/alias2": {
-      "get": {
-        "operationId": "AppController_withAliases",
-        "parameters": [
-          {
-            "name": "x-tenant-id",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/v2/alias1": {
-      "get": {
-        "operationId": "AppController_withAliases",
-        "parameters": [
-          {
-            "name": "x-tenant-id",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/v2/alias2": {
-      "get": {
-        "operationId": "AppController_withAliases",
-        "parameters": [
-          {
-            "name": "x-tenant-id",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
     "/api/v1/express:colon:another/{prop}": {
       "get": {
-        "operationId": "AppController_withColonExpress",
+        "operationId": "ExpressController_withColons_v1",
         "parameters": [
           {
             "name": "x-tenant-id",
@@ -130,13 +16,29 @@
         "responses": {
           "200": {
             "description": ""
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
           }
-        }
+        },
+        "tags": [
+          "Express"
+        ]
       }
     },
     "/api/v2/express:colon:another/{prop}": {
       "get": {
-        "operationId": "AppController_withColonExpress",
+        "operationId": "ExpressController_withColons_v2",
         "parameters": [
           {
             "name": "x-tenant-id",
@@ -149,13 +51,29 @@
         "responses": {
           "200": {
             "description": ""
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
           }
-        }
+        },
+        "tags": [
+          "Express"
+        ]
       }
     },
-    "/api/v1/fastify:{colon}:{another}/{prop}": {
+    "/api/v1": {
       "get": {
-        "operationId": "AppController_withColonFastify",
+        "operationId": "AppController_getHello_v1",
         "parameters": [
           {
             "name": "x-tenant-id",
@@ -168,13 +86,29 @@
         "responses": {
           "200": {
             "description": ""
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
           }
-        }
+        },
+        "tags": [
+          "App"
+        ]
       }
     },
-    "/api/v2/fastify:{colon}:{another}/{prop}": {
+    "/api/v2": {
       "get": {
-        "operationId": "AppController_withColonFastify",
+        "operationId": "AppController_getHello_v2",
         "parameters": [
           {
             "name": "x-tenant-id",
@@ -187,17 +121,213 @@
         "responses": {
           "200": {
             "description": ""
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
           }
-        }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/alias1": {
+      "get": {
+        "operationId": "AppController_withAliases[0]_v1",
+        "parameters": [
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/alias2": {
+      "get": {
+        "operationId": "AppController_withAliases[1]_v1",
+        "parameters": [
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v2/alias1": {
+      "get": {
+        "operationId": "AppController_withAliases[2]_v2",
+        "parameters": [
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v2/alias2": {
+      "get": {
+        "operationId": "AppController_withAliases[3]_v2",
+        "parameters": [
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "tags": [
+          "App"
+        ]
       }
     },
     "/api/cats": {
       "post": {
-        "operationId": "CatsController_create",
-        "x-foo": {
-          "test": "bar "
+        "callbacks": {
+          "myEvent": {
+            "{$request.body#/callbackUrl}": {
+              "post": {
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/Cat"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "200": {
+                    "description": "Your server returns this code if it accepts the callback"
+                  }
+                }
+              }
+            }
+          },
+          "mySecondEvent": {
+            "{$request.body#/callbackUrl}": {
+              "post": {
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/Cat"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "200": {
+                    "description": "Your server returns this code if it accepts the callback"
+                  }
+                }
+              }
+            }
+          }
         },
-        "summary": "Create cat",
+        "operationId": "CatsController_create",
         "parameters": [
           {
             "name": "header",
@@ -205,8 +335,8 @@
             "description": "Test",
             "required": false,
             "schema": {
-              "default": "test",
-              "type": "string"
+              "type": "string",
+              "default": "test"
             }
           },
           {
@@ -238,14 +368,23 @@
               }
             }
           },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorDto"
+                }
+              }
+            }
+          },
           "403": {
             "description": "Forbidden."
+          },
+          "500": {
+            "description": "Internal server error"
           }
         },
-        "tags": [
-          "cats",
-          "create cats"
-        ],
         "security": [
           {
             "key2": [],
@@ -257,19 +396,18 @@
           {
             "basic": []
           }
-        ]
+        ],
+        "summary": "Create cat",
+        "tags": [
+          "cats",
+          "create cats"
+        ],
+        "x-foo": {
+          "from-method": "bar"
+        }
       },
       "get": {
         "operationId": "CatsController_findAll",
-        "x-multiple": {
-          "test": "test"
-        },
-        "x-codeSamples": [
-          {
-            "lang": "JavaScript",
-            "source": "console.log('Hello World');"
-          }
-        ],
         "parameters": [
           {
             "name": "header",
@@ -277,8 +415,8 @@
             "description": "Test",
             "required": false,
             "schema": {
-              "default": "test",
-              "type": "string"
+              "type": "string",
+              "default": "test"
             }
           },
           {
@@ -293,6 +431,7 @@
               "title": "Page",
               "format": "int32",
               "default": 0,
+              "example": 123,
               "type": "number"
             }
           },
@@ -302,6 +441,10 @@
             "in": "query",
             "schema": {
               "nullable": true,
+              "example": [
+                "sort1",
+                "sort2"
+              ],
               "type": "array",
               "items": {
                 "type": "string"
@@ -313,6 +456,26 @@
             "required": true,
             "in": "query",
             "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "constrainedLimit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "oneOf": [
+                {
+                  "minimum": 0,
+                  "maximum": 10,
+                  "format": "int32"
+                },
+                {
+                  "minimum": 100,
+                  "maximum": 100,
+                  "format": "int32"
+                }
+              ],
               "type": "number"
             }
           },
@@ -373,6 +536,68 @@
             }
           },
           {
+            "name": "strArray",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "raw",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "foo": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "foo"
+              ]
+            }
+          },
+          {
+            "name": "rawArray",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "foo": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "foo"
+                ]
+              }
+            }
+          },
+          {
+            "name": "catBreeds",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "persian",
+                  "siamese",
+                  "maine-coon"
+                ]
+              }
+            }
+          },
+          {
             "name": "x-tenant-id",
             "in": "header",
             "schema": {
@@ -383,13 +608,21 @@
         "responses": {
           "200": {
             "description": ""
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
           }
         },
-        "tags": [
-          "cats",
-          "tag2",
-          "tag1"
-        ],
         "security": [
           {
             "key2": [],
@@ -401,13 +634,29 @@
           {
             "basic": []
           }
-        ]
+        ],
+        "tags": [
+          "cats",
+          "tag2",
+          "tag1"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "JavaScript",
+            "source": "console.log('Hello World');"
+          }
+        ],
+        "x-foo": {
+          "from-controller": true
+        },
+        "x-multiple": {
+          "test": "test"
+        }
       }
     },
-    "/api/cats/{id}": {
-      "get": {
-        "operationId": "CatsController_findOne",
-        "x-auth-type": "NONE",
+    "/api/cats/explicit-body": {
+      "post": {
+        "operationId": "CatsController_createExplicitBody",
         "parameters": [
           {
             "name": "header",
@@ -415,8 +664,88 @@
             "description": "Test",
             "required": false,
             "schema": {
-              "default": "test",
+              "type": "string",
+              "default": "test"
+            }
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "schema": {
               "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCatDto"
+              },
+              "examples": {
+                "mau": {
+                  "summary": "Mau example",
+                  "value": {
+                    "name": "Mau cat",
+                    "age": 5,
+                    "breed": "Mau"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "key2": [],
+            "key1": []
+          },
+          {
+            "bearer": []
+          },
+          {
+            "basic": []
+          }
+        ],
+        "tags": [
+          "cats"
+        ],
+        "x-foo": {
+          "from-controller": true
+        }
+      }
+    },
+    "/api/cats/{id}": {
+      "get": {
+        "operationId": "CatsController_findOne",
+        "parameters": [
+          {
+            "name": "header",
+            "in": "header",
+            "description": "Test",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "test"
             }
           },
           {
@@ -438,6 +767,14 @@
         "responses": {
           "200": {
             "description": "The found record",
+            "links": {
+              "CatsController_findOne_from_kittenIds": {
+                "operationId": "CatsController_findOne",
+                "parameters": {
+                  "id": "$response.body#/kittenIds"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -445,11 +782,21 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
           }
         },
-        "tags": [
-          "cats"
-        ],
         "security": [
           {
             "key2": [],
@@ -461,7 +808,14 @@
           {
             "basic": []
           }
-        ]
+        ],
+        "tags": [
+          "cats"
+        ],
+        "x-auth-type": "NONE",
+        "x-foo": {
+          "from-controller": true
+        }
       }
     },
     "/api/cats/explicit-query": {
@@ -474,8 +828,8 @@
             "description": "Test",
             "required": false,
             "schema": {
-              "default": "test",
-              "type": "string"
+              "type": "string",
+              "default": "test"
             }
           },
           {
@@ -490,6 +844,7 @@
               "title": "Page",
               "format": "int32",
               "default": 0,
+              "example": 123,
               "type": "number"
             }
           },
@@ -499,6 +854,10 @@
             "required": true,
             "schema": {
               "nullable": true,
+              "example": [
+                "sort1",
+                "sort2"
+              ],
               "type": "array",
               "items": {
                 "type": "string"
@@ -514,11 +873,34 @@
             }
           },
           {
+            "name": "constrainedLimit",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "oneOf": [
+                {
+                  "minimum": 0,
+                  "maximum": 10,
+                  "format": "int32"
+                },
+                {
+                  "minimum": 100,
+                  "maximum": 100,
+                  "format": "int32"
+                }
+              ]
+            }
+          },
+          {
             "name": "enum",
             "in": "query",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/LettersEnum"
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/LettersEnum"
+                }
+              ]
             }
           },
           {
@@ -570,6 +952,49 @@
             }
           },
           {
+            "required": true,
+            "name": "strArray",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "raw",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "properties": {
+                "foo": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          {
+            "name": "rawArray",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "foo": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "foo"
+                ]
+              }
+            }
+          },
+          {
             "name": "x-tenant-id",
             "in": "header",
             "schema": {
@@ -580,11 +1005,21 @@
         "responses": {
           "200": {
             "description": ""
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
           }
         },
-        "tags": [
-          "cats"
-        ],
         "security": [
           {
             "key2": [],
@@ -596,13 +1031,18 @@
           {
             "basic": []
           }
-        ]
+        ],
+        "tags": [
+          "cats"
+        ],
+        "x-foo": {
+          "from-controller": true
+        }
       }
     },
     "/api/cats/bulk": {
       "get": {
         "operationId": "CatsController_findAllBulk",
-        "summary": "Find all cats in bulk",
         "parameters": [
           {
             "name": "header",
@@ -610,8 +1050,8 @@
             "description": "Test",
             "required": false,
             "schema": {
-              "default": "test",
-              "type": "string"
+              "type": "string",
+              "default": "test"
             }
           },
           {
@@ -625,6 +1065,14 @@
         "responses": {
           "200": {
             "description": "",
+            "links": {
+              "CatsController_findOne_from_kittenIds": {
+                "operationId": "CatsController_findOne",
+                "parameters": {
+                  "id": "$response.body#/kittenIds"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -635,11 +1083,21 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
           }
         },
-        "tags": [
-          "cats"
-        ],
         "security": [
           {
             "key2": [],
@@ -651,7 +1109,14 @@
           {
             "basic": []
           }
-        ]
+        ],
+        "summary": "Find all cats in bulk",
+        "tags": [
+          "cats"
+        ],
+        "x-foo": {
+          "from-controller": true
+        }
       },
       "post": {
         "operationId": "CatsController_createBulk",
@@ -662,8 +1127,8 @@
             "description": "Test",
             "required": false,
             "schema": {
-              "default": "test",
-              "type": "string"
+              "type": "string",
+              "default": "test"
             }
           },
           {
@@ -690,11 +1155,21 @@
         "responses": {
           "201": {
             "description": ""
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
           }
         },
-        "tags": [
-          "cats"
-        ],
         "security": [
           {
             "key2": [],
@@ -706,13 +1181,18 @@
           {
             "basic": []
           }
-        ]
+        ],
+        "tags": [
+          "cats"
+        ],
+        "x-foo": {
+          "from-controller": true
+        }
       }
     },
     "/api/cats/as-form-data": {
       "post": {
         "operationId": "CatsController_createAsFormData",
-        "summary": "Create cat",
         "parameters": [
           {
             "name": "header",
@@ -720,8 +1200,8 @@
             "description": "Test",
             "required": false,
             "schema": {
-              "default": "test",
-              "type": "string"
+              "type": "string",
+              "default": "test"
             }
           },
           {
@@ -745,6 +1225,14 @@
         "responses": {
           "201": {
             "description": "The record has been successfully created.",
+            "links": {
+              "CatsController_findOne_from_kittenIds": {
+                "operationId": "CatsController_findOne",
+                "parameters": {
+                  "id": "$response.body#/kittenIds"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -753,13 +1241,23 @@
               }
             }
           },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorDto"
+                }
+              }
+            }
+          },
           "403": {
             "description": "Forbidden."
+          },
+          "500": {
+            "description": "Internal server error"
           }
         },
-        "tags": [
-          "cats"
-        ],
         "security": [
           {
             "key2": [],
@@ -771,12 +1269,19 @@
           {
             "basic": []
           }
-        ]
+        ],
+        "summary": "Create cat",
+        "tags": [
+          "cats"
+        ],
+        "x-foo": {
+          "from-controller": true
+        }
       }
     },
-    "/api/cats/site*": {
+    "/api/cats/wildcard/{path}": {
       "get": {
-        "operationId": "CatsController_getSite",
+        "operationId": "CatsController_getWildcard",
         "parameters": [
           {
             "name": "header",
@@ -784,8 +1289,8 @@
             "description": "Test",
             "required": false,
             "schema": {
-              "default": "test",
-              "type": "string"
+              "type": "string",
+              "default": "test"
             }
           },
           {
@@ -799,11 +1304,21 @@
         "responses": {
           "200": {
             "description": ""
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
           }
         },
-        "tags": [
-          "cats"
-        ],
         "security": [
           {
             "key2": [],
@@ -815,7 +1330,13 @@
           {
             "basic": []
           }
-        ]
+        ],
+        "tags": [
+          "cats"
+        ],
+        "x-foo": {
+          "from-controller": true
+        }
       }
     },
     "/api/cats/with-enum/{type}": {
@@ -828,8 +1349,8 @@
             "description": "Test",
             "required": false,
             "schema": {
-              "default": "test",
-              "type": "string"
+              "type": "string",
+              "default": "test"
             }
           },
           {
@@ -837,12 +1358,12 @@
             "required": true,
             "in": "path",
             "schema": {
-              "type": "string",
               "enum": [
                 "A",
                 "B",
                 "C"
-              ]
+              ],
+              "type": "string"
             }
           },
           {
@@ -856,11 +1377,21 @@
         "responses": {
           "200": {
             "description": ""
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
           }
         },
-        "tags": [
-          "cats"
-        ],
         "security": [
           {
             "key2": [],
@@ -872,7 +1403,83 @@
           {
             "basic": []
           }
-        ]
+        ],
+        "tags": [
+          "cats"
+        ],
+        "x-foo": {
+          "from-controller": true
+        }
+      }
+    },
+    "/api/cats/with-enum-named/{type}": {
+      "get": {
+        "operationId": "CatsController_getWithEnumNamedParam",
+        "parameters": [
+          {
+            "name": "header",
+            "in": "header",
+            "description": "Test",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "test"
+            }
+          },
+          {
+            "name": "type",
+            "required": true,
+            "in": "path",
+            "description": "This is a description for 'type' query parameter",
+            "deprecated": false,
+            "schema": {
+              "$ref": "#/components/schemas/Letter"
+            }
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "key2": [],
+            "key1": []
+          },
+          {
+            "bearer": []
+          },
+          {
+            "basic": []
+          }
+        ],
+        "tags": [
+          "cats"
+        ],
+        "x-foo": {
+          "from-controller": true
+        }
       }
     },
     "/api/cats/with-random-query": {
@@ -885,8 +1492,8 @@
             "description": "Test",
             "required": false,
             "schema": {
-              "default": "test",
-              "type": "string"
+              "type": "string",
+              "default": "test"
             }
           },
           {
@@ -900,6 +1507,18 @@
             }
           },
           {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
             "name": "x-tenant-id",
             "in": "header",
             "schema": {
@@ -910,11 +1529,21 @@
         "responses": {
           "200": {
             "description": ""
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
           }
         },
-        "tags": [
-          "cats"
-        ],
         "security": [
           {
             "key2": [],
@@ -926,7 +1555,167 @@
           {
             "basic": []
           }
-        ]
+        ],
+        "tags": [
+          "cats"
+        ],
+        "x-foo": {
+          "from-controller": true
+        }
+      }
+    },
+    "/api/cats/download": {
+      "get": {
+        "operationId": "CatsController_download",
+        "parameters": [
+          {
+            "name": "header",
+            "in": "header",
+            "description": "Test",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "test"
+            }
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "binary file for download",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "key2": [],
+            "key1": []
+          },
+          {
+            "bearer": []
+          },
+          {
+            "basic": []
+          }
+        ],
+        "summary": "",
+        "tags": [
+          "cats"
+        ],
+        "x-foo": {
+          "from-controller": true
+        }
+      }
+    },
+    "/api/cats/raw-schema-response": {
+      "get": {
+        "operationId": "CatsController_rawSchemaResponse",
+        "parameters": [
+          {
+            "name": "header",
+            "in": "header",
+            "description": "Test",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "test"
+            }
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The paginated response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Cat"
+                      }
+                    },
+                    "pageInfo": {
+                      "type": "object",
+                      "properties": {
+                        "hasPreviousPage": {
+                          "type": "boolean"
+                        },
+                        "hasNextPage": {
+                          "type": "boolean"
+                        },
+                        "startCursor": {
+                          "type": "string"
+                        },
+                        "endCursor": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "key2": [],
+            "key1": []
+          },
+          {
+            "bearer": []
+          },
+          {
+            "basic": []
+          }
+        ],
+        "tags": [
+          "cats"
+        ],
+        "x-foo": {
+          "from-controller": true
+        }
       }
     }
   },
@@ -934,7 +1723,10 @@
     "title": "Cats example",
     "description": "The cats API description",
     "version": "1.0",
-    "contact": {}
+    "contact": {},
+    "x-logo": {
+      "url": "https://example.com/logo.png"
+    }
   },
   "tags": [
     {
@@ -980,6 +1772,23 @@
       }
     },
     "schemas": {
+      "ValidationErrorDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "number",
+            "description": "HTTP status code"
+          },
+          "description": {
+            "type": "string",
+            "description": "Error description"
+          }
+        },
+        "required": [
+          "status",
+          "description"
+        ]
+      },
       "ExtraModel": {
         "type": "object",
         "properties": {
@@ -990,6 +1799,7 @@
             "type": "number"
           }
         },
+        "description": "ExtraModel description",
         "required": [
           "one",
           "two"
@@ -1001,7 +1811,9 @@
           "A",
           "B",
           "C"
-        ]
+        ],
+        "description": "This is a description for the LettersEnum schema",
+        "deprecated": true
       },
       "TagDto": {
         "type": "object",
@@ -1013,6 +1825,20 @@
         },
         "required": [
           "name"
+        ]
+      },
+      "XEnumTest": {
+        "type": "number",
+        "enum": [
+          1,
+          2,
+          3
+        ],
+        "description": "The x-enumNames test",
+        "x-enumNames": [
+          "APPROVED",
+          "PENDING",
+          "REJECTED"
         ]
       },
       "CreateCatDto": {
@@ -1058,6 +1884,23 @@
               }
             }
           },
+          "rawDefinition": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "example": "ErrorName"
+              },
+              "status": {
+                "type": "number",
+                "example": 400
+              }
+            },
+            "required": [
+              "name",
+              "status"
+            ]
+          },
           "enumWithDescription": {
             "enum": [
               "A",
@@ -1068,19 +1911,42 @@
             "description": "Enum with description"
           },
           "enum": {
-            "$ref": "#/components/schemas/LettersEnum"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LettersEnum"
+              }
+            ]
           },
           "enumArr": {
             "type": "array",
+            "description": "This is a description for the enumArr attribute",
             "items": {
               "$ref": "#/components/schemas/LettersEnum"
             }
+          },
+          "enumWithRef": {
+            "description": "A small assortment of letters (in DTO)?",
+            "default": "A",
+            "deprecated": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LettersEnum"
+              }
+            ]
           },
           "tag": {
             "description": "tag",
             "allOf": [
               {
                 "$ref": "#/components/schemas/TagDto"
+              }
+            ]
+          },
+          "xEnumTest": {
+            "description": "The x-enumNames test",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/XEnumTest"
               }
             ]
           }
@@ -1097,9 +1963,12 @@
           "createdAt",
           "urls",
           "options",
+          "rawDefinition",
           "enumWithDescription",
           "enum",
-          "enumArr"
+          "enumArr",
+          "enumWithRef",
+          "xEnumTest"
         ]
       },
       "Cat": {
@@ -1153,6 +2022,29 @@
               }
             }
           },
+          "rawDefinition": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "example": "ErrorName"
+              },
+              "status": {
+                "type": "number",
+                "example": 400
+              }
+            },
+            "required": [
+              "name",
+              "status"
+            ]
+          },
+          "optionalRawDefinition": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "boolean"
+            }
+          },
           "enum": {
             "type": "string",
             "enum": [
@@ -1171,18 +2063,77 @@
                 "C"
               ]
             }
+          },
+          "enumWithRef": {
+            "description": "A small assortment of letters?",
+            "default": "A",
+            "deprecated": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LettersEnum"
+              }
+            ]
+          },
+          "oneOfExample": {
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "boolean"
+                }
+              }
+            ],
+            "description": "Array of values that uses \"oneOf\""
+          },
+          "kittenIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "siblings": {
+            "type": "object",
+            "properties": {
+              "ids": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "ids"
+            ]
           }
+        },
+        "x-schema-extension": {
+          "test": "test"
+        },
+        "x-schema-extension-multiple": {
+          "test": "test*2"
         },
         "required": [
           "name",
           "age",
           "breed",
-          "_tags",
           "createdAt",
           "urls",
           "_options",
+          "rawDefinition",
           "enum",
-          "enumArr"
+          "enumArr",
+          "enumWithRef",
+          "oneOfExample",
+          "kittenIds"
         ]
       },
       "Letter": {
@@ -1191,7 +2142,9 @@
           "A",
           "B",
           "C"
-        ]
+        ],
+        "description": "This is a description for the Letters schema",
+        "deprecated": true
       }
     }
   },
@@ -1203,5 +2156,8 @@
       "basic": [],
       "cookie": []
     }
-  ]
+  ],
+  "x-test": {
+    "test": "test"
+  }
 }

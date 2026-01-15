@@ -28,7 +28,7 @@ export class SwaggerScanner {
     new ModelPropertiesAccessor(),
     new SwaggerTypesMapper()
   );
-  private readonly explorer = new SwaggerExplorer(this.schemaObjectFactory);
+  private explorer: SwaggerExplorer | undefined;
 
   public scanApplication(
     app: INestApplication,
@@ -39,11 +39,16 @@ export class SwaggerScanner {
       include: includedModules = [],
       extraModels = [],
       ignoreGlobalPrefix = false,
-      operationIdFactory
+      operationIdFactory,
+      linkNameFactory,
+      autoTagControllers = true
     } = options;
 
-    const container = (app as any).container as NestContainer;
-    const internalConfigRef = (app as any).config as ApplicationConfig;
+    const untypedApp = app as any;
+    const container = untypedApp.container as NestContainer;
+    const internalConfigRef = untypedApp.config as ApplicationConfig;
+    const httpAdapterType = app.getHttpAdapter().getType();
+    this.initializeSwaggerExplorer(httpAdapterType);
 
     const modules: Module[] = this.getModules(
       container.getModules(),
@@ -70,27 +75,26 @@ export class SwaggerScanner {
                 metatype
               );
               result = result.concat(
-                this.scanModuleControllers(
-                  controllers,
+                this.scanModuleControllers(controllers, internalConfigRef, {
                   modulePath,
                   globalPrefix,
-                  internalConfigRef,
-                  operationIdFactory
-                )
+                  operationIdFactory,
+                  linkNameFactory,
+                  autoTagControllers
+                })
               );
             });
         }
         const modulePath = this.getModulePathMetadata(container, metatype);
-        result = result.concat(
-          this.scanModuleControllers(
-            controllers,
+        return result.concat(
+          this.scanModuleControllers(controllers, internalConfigRef, {
             modulePath,
             globalPrefix,
-            internalConfigRef,
-            operationIdFactory
-          )
+            operationIdFactory,
+            linkNameFactory,
+            autoTagControllers
+          })
         );
-        return this.transformer.unescapeColonsInPath(app, result);
       }
     );
 
@@ -107,19 +111,21 @@ export class SwaggerScanner {
 
   public scanModuleControllers(
     controller: Map<InjectionToken, InstanceWrapper>,
-    modulePath: string | undefined,
-    globalPrefix: string | undefined,
     applicationConfig: ApplicationConfig,
-    operationIdFactory?: OperationIdFactory
+    options: {
+      modulePath: string | undefined;
+      globalPrefix: string | undefined;
+      operationIdFactory?: OperationIdFactory;
+      linkNameFactory?: (
+        controllerKey: string,
+        methodKey: string,
+        fieldKey: string
+      ) => string;
+      autoTagControllers?: boolean;
+    }
   ): ModuleRoute[] {
     const denormalizedArray = [...controller.values()].map((ctrl) =>
-      this.explorer.exploreController(
-        ctrl,
-        applicationConfig,
-        modulePath,
-        globalPrefix,
-        operationIdFactory
-      )
+      this.explorer.exploreController(ctrl, applicationConfig, options)
     );
     return flatten(denormalizedArray) as any;
   }
@@ -155,5 +161,14 @@ export class SwaggerScanner {
       metatype
     );
     return modulePath ?? Reflect.getMetadata(MODULE_PATH, metatype);
+  }
+
+  private initializeSwaggerExplorer(httpAdapterType: string) {
+    if (this.explorer) {
+      return;
+    }
+    this.explorer = new SwaggerExplorer(this.schemaObjectFactory, {
+      httpAdapterType
+    });
   }
 }

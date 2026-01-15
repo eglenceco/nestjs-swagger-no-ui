@@ -18,6 +18,7 @@ export default async () => {
               page: { required: true, type: () => Number },
               sortBy: { required: true, type: () => [String] },
               limit: { required: true, type: () => Number },
+              constrainedLimit: { required: false, type: () => Number },
               enum: {
                 required: true,
                 enum: t['./cats/dto/pagination-query.dto'].LettersEnum
@@ -179,14 +180,14 @@ export default async () => {
           {
             AppController: {
               getHello: {
-                description: 'Says hello',
+                summary: 'Says hello',
                 deprecated: true,
                 type: String
               },
               withAliases: { type: String },
               withColonExpress: { type: String },
               withColonFastify: {
-                description: 'Returns information about the application',
+                summary: 'Returns information about the application',
                 type: String
               }
             }

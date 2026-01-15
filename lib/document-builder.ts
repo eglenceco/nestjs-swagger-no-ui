@@ -1,8 +1,10 @@
 import { Logger } from '@nestjs/common';
-import { clone, isString, isUndefined, negate, pickBy } from 'lodash';
+import { clone, isString, isUndefined, negate, omit, pickBy } from 'lodash';
+import { ApiResponseOptions } from './decorators/api-response.decorator';
 import { buildDocumentBase } from './fixtures/document.base';
 import { OpenAPIObject } from './interfaces';
 import {
+  ExtensionLocation,
   ExternalDocumentationObject,
   ParameterObject,
   SecurityRequirementObject,
@@ -11,7 +13,11 @@ import {
   TagObject
 } from './interfaces/open-api-spec.interface';
 import { GlobalParametersStorage } from './storages/global-parameters.storage';
+import { GlobalResponsesStorage } from './storages/global-responses.storage';
 
+/**
+ * @publicApi
+ */
 export class DocumentBuilder {
   private readonly logger = new Logger(DocumentBuilder.name);
   private readonly document: Omit<OpenAPIObject, 'paths'> = buildDocumentBase();
@@ -46,6 +52,17 @@ export class DocumentBuilder {
     return this;
   }
 
+  public setOpenAPIVersion(version: string): this {
+    if (version.match(/^\d\.\d\.\d$/)) {
+      this.document.openapi = version;
+    } else {
+      this.logger.warn(
+        'The OpenApi version is invalid. Expecting format "x.x.x"'
+      );
+    }
+    return this;
+  }
+
   public addServer(
     url: string,
     description?: string,
@@ -60,6 +77,9 @@ export class DocumentBuilder {
     return this;
   }
 
+  /**
+   * @deprecated Use `addServer` method to set up multiple different paths. The `setBasePath` method has been deprecated. Now, a global prefix is populated automatically. If you want to ignore it, take a look here: https://docs.nestjs.com/recipes/swagger#global-prefix.
+   */
   public setBasePath(path: string) {
     this.logger.warn(
       'The "setBasePath" method has been deprecated. Now, a global prefix is populated automatically. If you want to ignore it, take a look here: https://docs.nestjs.com/recipes/swagger#global-prefix. Alternatively, you can use "addServer" method to set up multiple different paths.'
@@ -85,14 +105,22 @@ export class DocumentBuilder {
     return this;
   }
 
-  public addExtension(extensionKey: string, extensionProperties: any): this {
+  public addExtension(
+    extensionKey: string,
+    extensionProperties: any,
+    location: ExtensionLocation = 'root'
+  ): this {
     if (!extensionKey.startsWith('x-')) {
       throw new Error(
         'Extension key is not prefixed. Please ensure you prefix it with `x-`.'
       );
     }
 
-    this.document[extensionKey] = clone(extensionProperties);
+    if (location === 'root') {
+      this.document[extensionKey] = clone(extensionProperties);
+    } else {
+      this.document[location][extensionKey] = clone(extensionProperties);
+    }
 
     return this;
   }
@@ -105,7 +133,25 @@ export class DocumentBuilder {
     return this;
   }
 
-  public addGlobalParameters(...parameters: ParameterObject[]): this {
+  public addGlobalResponse(...respones: ApiResponseOptions[]): this {
+    const groupedByStatus = respones.reduce(
+      (acc, response) => {
+        const { status = 'default' } = response;
+        acc[status] = omit(response, 'status');
+        return acc;
+      },
+      {} as Record<string, Omit<ApiResponseOptions, 'status'>>
+    );
+
+    GlobalResponsesStorage.add(groupedByStatus);
+    return this;
+  }
+
+  public addGlobalParameters(
+    // Examples should be specified under the "schema" object
+    // Top level attributes are ignored
+    ...parameters: Omit<ParameterObject, 'example' | 'examples'>[]
+  ): this {
     GlobalParametersStorage.add(...parameters);
     return this;
   }
