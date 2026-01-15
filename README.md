@@ -20,7 +20,30 @@
 
 ## Description
 
-[OpenAPI (Swagger)](https://www.openapis.org/) module for [Nest](https://github.com/nestjs/nest). This package is modified to remove the swagger-ui-dist dependency.
+[OpenAPI (Swagger)](https://www.openapis.org/) module for [Nest](https://github.com/nestjs/nest). 
+
+**This package is a modified fork of `@nestjs/swagger` v11.2.5 with the Swagger UI dependencies removed.**
+
+### Why Use This Package?
+
+- **Lightweight**: No `swagger-ui-dist` dependency (~5MB smaller)
+- **API-only**: Perfect for microservices that only need to serve OpenAPI specs (JSON/YAML)
+- **Drop-in replacement**: Compatible with all `@nestjs/swagger` decorators and APIs
+- **Up-to-date**: Based on the latest `@nestjs/swagger` v11.2.5
+
+### What's Removed?
+
+- Swagger UI static assets and serving logic
+- UI-related configuration options (`ui`, `swaggerUiEnabled`, `customCss`, `customCssUrl`, etc.)
+- The entire `/swagger-ui` route handler
+
+### What's Included?
+
+✅ All OpenAPI decorators (`@ApiProperty`, `@ApiOperation`, etc.)  
+✅ Document generation (`SwaggerModule.createDocument`)  
+✅ JSON/YAML endpoint serving  
+✅ CLI plugin support  
+✅ Full TypeScript support  
 
 ## Quick Start
 
